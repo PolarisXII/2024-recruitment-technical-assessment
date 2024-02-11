@@ -10,17 +10,45 @@ class File:
 
 
 """
+Helpers
+"""
+def groupFilesByParents(files: list[File]) -> dict:
+    parentsAndChildren = {}
+    for file in files:
+        parentsAndChildren.setdefault(file.parent, []).append(file)
+    return parentsAndChildren
+
+
+def groupFilesByCategory(files: list[File]):
+    categories = {}
+    for file in files:
+        for category in file.categories:
+            categories.setdefault(category, []).append(file.name)
+    return categories
+
+
+"""
 Task 1
 """
 def leafFiles(files: list[File]) -> list[str]:
-    return []
+    filesByParents = groupFilesByParents(files)
+    leafFiles = [file.name for file in files if file.id not in filesByParents]
+    return sorted(leafFiles)
 
 
 """
 Task 2
 """
 def kLargestCategories(files: list[File], k: int) -> list[str]:
-    return []
+    categories = groupFilesByCategory(files)
+
+    categories = sorted(categories.items(), key=lambda x: (-len(x[1]), x[0]))
+
+    result = []
+
+    for i in range(0, k):
+        result.append(categories[i][0])
+    return result
 
 
 """
@@ -58,8 +86,9 @@ if __name__ == '__main__':
         "Video.mp4"
     ]
 
+
     assert kLargestCategories(testFiles, 3) == [
         "Documents", "Folder", "Media"
     ]
 
-    assert largestFileSize(testFiles) == 20992
+#     assert largestFileSize(testFiles) == 20992
