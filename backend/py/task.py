@@ -26,6 +26,30 @@ def groupFilesByCategory(files: list[File]):
             categories.setdefault(category, []).append(file.name)
     return categories
 
+def findDescendants(file: File, files_by_parent: dict[int, list[File]]) -> list[File]:
+    descendants = []
+    children = files_by_parent.get(file.id, [])
+
+    if len(children) > 0:
+        for child in children:
+            descendants.append(child)
+            descendants.extend(findDescendants(child, files_by_parent))
+
+    return descendants
+
+
+def groupByDescendants(files:list[File], filesByParents: dict):
+    filesByParents = groupFilesByParents(files)
+    filesByDescendants = {}
+
+    for file in files:
+        filesByDescendants[file.name] = findDescendants(file, filesByParents)
+    
+    return filesByDescendants
+        
+def findSizeByName(files: list[File], name:str):
+    size = [file.size for file in files if file.name == name]
+    return size[0]
 
 """
 Task 1
@@ -56,7 +80,19 @@ def kLargestCategories(files: list[File], k: int) -> list[str]:
 Task 3
 """
 def largestFileSize(files: list[File]) -> int:
-    return 0
+    filesByParents = groupFilesByParents(files)
+    filesByDescendents = groupByDescendants(files, filesByParents)
+
+    sizes = []
+    for filename, descendants in filesByDescendents.items():
+        if len(descendants) == 0:
+            size = findSizeByName(files, filename)
+            sizes.append(size)
+        else:
+            total = findSizeByName(files, filename) + sum(file.size for file in descendants)
+            sizes.append(total)
+    
+    return max(sizes)
 
 
 if __name__ == '__main__':
@@ -91,4 +127,4 @@ if __name__ == '__main__':
         "Documents", "Folder", "Media"
     ]
 
-#     assert largestFileSize(testFiles) == 20992
+    assert largestFileSize(testFiles) == 20992
