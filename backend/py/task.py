@@ -41,13 +41,14 @@ Task 2
 """
 def kLargestCategories(files: list[File], k: int) -> list[str]:
     categories = groupFilesByCategory(files)
+    sortedCategories = sorted(categories.items(), key=lambda x: (-len(x[1]), x[0]))
 
-    categories = sorted(categories.items(), key=lambda x: (-len(x[1]), x[0]))
-
+    if k >= len(sortedCategories):
+        return [category[0] for category in sortedCategories]
+    
     result = []
-
     for i in range(0, k):
-        result.append(categories[i][0])
+        result.append(sortedCategories[i][0])
     return result
 
 
@@ -85,7 +86,6 @@ if __name__ == '__main__':
         "Spreadsheet2.xlsx",
         "Video.mp4"
     ]
-
 
     assert kLargestCategories(testFiles, 3) == [
         "Documents", "Folder", "Media"
