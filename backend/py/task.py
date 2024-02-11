@@ -12,13 +12,21 @@ class File:
 """
 Helpers
 """
+
+'''
+    Group files together into a dict, 
+    keys being the ids of the parent files and values being their corresponding children files
+'''
 def groupFilesByParents(files: list[File]) -> dict:
     parentsAndChildren = {}
     for file in files:
         parentsAndChildren.setdefault(file.parent, []).append(file)
     return parentsAndChildren
 
-
+'''
+    Group files into a dict, 
+    keys being categories and values files under each corresponding category
+'''
 def groupFilesByCategory(files: list[File]):
     categories = {}
     for file in files:
@@ -26,6 +34,10 @@ def groupFilesByCategory(files: list[File]):
             categories.setdefault(category, []).append(file.name)
     return categories
 
+'''
+    Given a file, find all its descendants (children files, grandchildren files etc)
+    If the file has no descendants, return an empty list
+'''
 def findDescendants(file: File, files_by_parent: dict[int, list[File]]) -> list[File]:
     descendants = []
     children = files_by_parent.get(file.id, [])
@@ -37,7 +49,10 @@ def findDescendants(file: File, files_by_parent: dict[int, list[File]]) -> list[
 
     return descendants
 
-
+'''
+    Group files into a dict, 
+    keys being filenames and values being their descendants 
+'''
 def groupByDescendants(files:list[File], filesByParents: dict):
     filesByParents = groupFilesByParents(files)
     filesByDescendants = {}
@@ -85,11 +100,11 @@ def largestFileSize(files: list[File]) -> int:
 
     sizes = []
     for filename, descendants in filesByDescendents.items():
+        size = findSizeByName(files, filename)
         if len(descendants) == 0:
-            size = findSizeByName(files, filename)
             sizes.append(size)
         else:
-            total = findSizeByName(files, filename) + sum(file.size for file in descendants)
+            total = size + sum(file.size for file in descendants)
             sizes.append(total)
     
     return max(sizes)
